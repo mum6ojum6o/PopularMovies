@@ -6,10 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width = "match_parent"
         android:layout_height = "match_parent"
         android:id="@+id/rv_movie_posters"
-        android:padding="8dp"/>
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"/>
 
 </LinearLayout>

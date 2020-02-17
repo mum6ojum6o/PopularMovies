@@ -6,16 +6,21 @@ import com.mumbojumbo.popularmovies.model.Result;
 import retrofit2.*;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MovieResults {
+public class MovieResultsFromNetwork {
+    public static final String MODEL_KEY="MODEL";
+    public static final String IMAGE_BASE_URL="http://image.tmdb.org/t/p/w185/";
     IRetrofitService mRetroFitService;
     Callback<Result> mCallback;
-    public MovieResults(int page,Callback<Result> callback){
+    public MovieResultsFromNetwork(Callback<Result> callback){
         mCallback = callback;
         Retrofit retrofit= new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(IRetrofitService.DOMAIN_URL)
                 .build();
         mRetroFitService = retrofit.create(IRetrofitService.class);
+
+    }
+    public void getPopularMovies(int page){
         mRetroFitService.popularMovies(page).enqueue(mCallback);
     }
 }

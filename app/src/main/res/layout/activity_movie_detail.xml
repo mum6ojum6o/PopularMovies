@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +11,7 @@
     tools:context=".MovieDetailActivity">
 
     <ImageView
+
         android:id="@+id/iv_movie_poster_detail"
         android:layout_width="200dp"
         android:layout_height="200dp"
@@ -43,7 +48,6 @@
         android:text="Synopsis:"
         android:textStyle="bold"
         android:textSize="24sp"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_movie_title" />
 
@@ -118,3 +122,4 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_user_rating"
         tools:text="07.07.2020" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

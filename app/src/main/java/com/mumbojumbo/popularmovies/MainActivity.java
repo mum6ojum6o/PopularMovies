@@ -6,6 +6,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
 import com.mumbojumbo.popularmovies.model.Movie;
@@ -13,6 +17,8 @@ import com.mumbojumbo.popularmovies.model.Result;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import retrofit2.*;
 
@@ -63,6 +69,40 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void getMoviesFromPage(int page) {
         this.mMovieResultsFromNetwork.getPopularMovies(page);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.toolbar_option,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem){
+        super.onOptionsItemSelected(menuItem);
+        switch (menuItem.getItemId()){
+            case R.id.menu_item_popularity:
+                Collections.sort(mMovies, new Comparator<Movie>() {
+                    @Override
+                    public int compare(Movie m1, Movie m2) {
+                        return (int)(m2.getmPopularity() - m1.getmPopularity());
+                    }
+                });
+
+                break;
+            case R.id.menu_item_ratings:
+                Collections.sort(mMovies, new Comparator<Movie>() {
+                    @Override
+                    public int compare(Movie o1, Movie o2) {
+                        return o2.getmVoteCount()-o1.getmVoteCount();
+                    }
+                });
+                break;
+        }
+        mMoviePostersAdapter.notifyDataSetChanged();
+        return true;
     }
 
 

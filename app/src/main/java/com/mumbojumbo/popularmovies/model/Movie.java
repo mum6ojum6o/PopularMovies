@@ -19,6 +19,11 @@ public class Movie implements Parcelable {
     @SerializedName("release_date")
     private String mReleaseDate;
 
+    @SerializedName("vote_count")
+    private int mVoteCount;
+
+
+
     public Movie(Parcel in) {
         this.mOriginalTitle = in.readString();
         this.mOverview = in.readString();
@@ -87,7 +92,13 @@ public class Movie implements Parcelable {
     public void setmReleaseDate(String mReleaseDate) {
         this.mReleaseDate = mReleaseDate;
     }
+    public int getmVoteCount() {
+        return mVoteCount;
+    }
 
+    public void setmVoteCount(int mVoteCount) {
+        this.mVoteCount = mVoteCount;
+    }
 
     @Override
     public int describeContents() {

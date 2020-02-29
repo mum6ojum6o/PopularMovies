@@ -19,8 +19,8 @@ public class Movie implements Parcelable {
     @SerializedName("release_date")
     private String mReleaseDate;
 
-    @SerializedName("vote_count")
-    private int mVoteCount;
+    @SerializedName("vote_average")
+    private double mVoteAverage;
 
 
 
@@ -92,12 +92,12 @@ public class Movie implements Parcelable {
     public void setmReleaseDate(String mReleaseDate) {
         this.mReleaseDate = mReleaseDate;
     }
-    public int getmVoteCount() {
-        return mVoteCount;
+    public double getmVoteCount() {
+        return mVoteAverage;
     }
 
-    public void setmVoteCount(int mVoteCount) {
-        this.mVoteCount = mVoteCount;
+    public void setmVoteCount(double mVoteCount) {
+        this.mVoteAverage= mVoteCount;
     }
 
     @Override

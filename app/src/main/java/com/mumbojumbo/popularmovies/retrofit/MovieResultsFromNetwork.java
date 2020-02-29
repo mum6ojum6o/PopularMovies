@@ -23,4 +23,7 @@ public class MovieResultsFromNetwork {
     public void getPopularMovies(int page){
         mRetroFitService.popularMovies(page).enqueue(mCallback);
     }
+    public void getTopRatedMovies(int page){
+        mRetroFitService.topRatedMovies(page).enqueue(mCallback);
+    }
 }

@@ -1,5 +1,6 @@
 package com.mumbojumbo.popularmovies;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,7 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
 import com.mumbojumbo.popularmovies.model.Movie;
@@ -17,13 +17,14 @@ import com.mumbojumbo.popularmovies.model.Result;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import retrofit2.*;
 
 public class MainActivity extends AppCompatActivity
         implements Callback<Result>,MoviePostersAdapter.IGetMoreMovies{
+    private int mSortOption = 1; //1 for popular movies and 0 for top rated movies
+    private static final String RESTORE_SORT_OPTIONS_KEY = "SORT_OPTION";
+
     private static final String TAG="MainActivity";
     /*@BindView(R.id.rv_movie_posters)*/ RecyclerView mRecyclerView;
     private static final String url="";
@@ -44,12 +45,18 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView.setLayoutManager(manager);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(mMoviePostersAdapter);
+        if(savedInstanceState!=null){
+            this.mSortOption = savedInstanceState.getInt(RESTORE_SORT_OPTIONS_KEY,1);
+        }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        this.mMovieResultsFromNetwork.getPopularMovies(1);
+        if(mSortOption ==1)
+            this.mMovieResultsFromNetwork.getPopularMovies(1);
+        else
+            this.mMovieResultsFromNetwork.getTopRatedMovies(1);
     }
 
     @Override
@@ -84,26 +91,29 @@ public class MainActivity extends AppCompatActivity
         super.onOptionsItemSelected(menuItem);
         switch (menuItem.getItemId()){
             case R.id.menu_item_popularity:
-                Collections.sort(mMovies, new Comparator<Movie>() {
-                    @Override
-                    public int compare(Movie m1, Movie m2) {
-                        return (int)(m2.getmPopularity() - m1.getmPopularity());
-                    }
-                });
-
+                if(this.mSortOption !=1) {
+                    this.mSortOption =1;
+                    this.mMovies.clear();
+                    this.mMovieResultsFromNetwork.getPopularMovies(1);
+                }
                 break;
             case R.id.menu_item_ratings:
-                Collections.sort(mMovies, new Comparator<Movie>() {
-                    @Override
-                    public int compare(Movie o1, Movie o2) {
-                        return o2.getmVoteCount()-o1.getmVoteCount();
-                    }
-                });
+                if(this.mSortOption !=0) {
+                    this.mSortOption = 0;
+                    this.mMovies.clear();
+                    this.mMovieResultsFromNetwork.getTopRatedMovies(1);
+                }
                 break;
         }
-        mMoviePostersAdapter.notifyDataSetChanged();
         return true;
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(this.RESTORE_SORT_OPTIONS_KEY,this.mSortOption);
+    }
+
 
 
 }

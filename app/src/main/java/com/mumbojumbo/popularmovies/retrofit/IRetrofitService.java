@@ -11,4 +11,7 @@ public interface IRetrofitService {
     String DOMAIN_URL="https://api.themoviedb.org/";
     @GET("3/movie/popular?api_key="+BuildConfig.API_KEY)
     Call<Result> popularMovies(@Query("page") int page);
+
+    @GET("3/movie/top_rated?api_key="+BuildConfig.API_KEY)
+    Call<Result>topRatedMovies(@Query("page")int page);
 }

@@ -24,7 +24,6 @@ public class MoviePostersAdapter extends RecyclerView.Adapter<MoviePosterViewHol
     List<Movie> mMovies;
     int mPagesLoaded;
     private IGetMoreMovies moreMoviesFetcher;
-    private IMoviePosterClickListener mPosterClickListener;
     public MoviePostersAdapter(List<Movie> mMovies,
                                int pagesLoaded,
                                IGetMoreMovies movieFetcher) {
@@ -39,6 +38,10 @@ public class MoviePostersAdapter extends RecyclerView.Adapter<MoviePosterViewHol
         LayoutInflater layoutInflater =   LayoutInflater.from(parent.getContext());
         View layout = layoutInflater.inflate(R.layout.movie_list_item,parent,false);
         return new MoviePosterViewHolder(layout);
+    }
+
+    public void resetPages(){
+        mPagesLoaded = 1;
     }
 
     @Override
@@ -66,6 +69,8 @@ public class MoviePostersAdapter extends RecyclerView.Adapter<MoviePosterViewHol
     public interface IGetMoreMovies{
         void getMoviesFromPage(int page);
     }
+
+
     public interface IMoviePosterClickListener{
         void onClick();
     }

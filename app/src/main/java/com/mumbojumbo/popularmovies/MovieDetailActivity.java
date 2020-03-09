@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.mumbojumbo.popularmovies.model.Movie;
+import com.mumbojumbo.popularmovies.room.entities.Movie;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 
 import org.w3c.dom.Text;
@@ -52,12 +52,12 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
     private void populateUI(Bundle bundle){
         Movie movie=(Movie)(bundle.getParcelable(MovieResultsFromNetwork.MODEL_KEY));
         if(movie!=null) {
-            mMovieTitle.setText(movie.getmOriginalTitle());
-            mSynopsis.setText(movie.getmOverview());
-            mRating.append(""+movie.getmPopularity());
-            mReleaseDate.setText(movie.getmReleaseDate());
+            mMovieTitle.setText(movie.getMovieTitle());
+            mSynopsis.setText(movie.getOverview());
+            mRating.append(""+movie.getPopularity());
+            mReleaseDate.setText(movie.getReleaseDate());
             Glide.with(this)
-                    .load(Uri.parse(MovieResultsFromNetwork.IMAGE_BASE_URL+movie.getmPoster()))
+                    .load(Uri.parse(MovieResultsFromNetwork.IMAGE_BASE_URL+movie.getPoster()))
                     .placeholder(R.mipmap.ic_image_placedholder)
                     .error(R.mipmap.ic_image_placedholder)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)

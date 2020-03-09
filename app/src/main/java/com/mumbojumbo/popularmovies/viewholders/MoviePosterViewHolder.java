@@ -46,7 +46,7 @@ public class MoviePosterViewHolder extends RecyclerView.ViewHolder implements Vi
     public void onClick(View v) {
          Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
          Bundle bundle = new Bundle();
-         //bundle.putParcelable(MovieResultsFromNetwork.MODEL_KEY,mData);
+         bundle.putParcelable(MovieResultsFromNetwork.MODEL_KEY,mData);
          intent.putExtra("bundle",bundle);
         v.getContext().startActivity(intent);
     }

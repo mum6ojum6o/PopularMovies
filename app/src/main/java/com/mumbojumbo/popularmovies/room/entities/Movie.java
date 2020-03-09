@@ -1,10 +1,13 @@
 package com.mumbojumbo.popularmovies.room.entities;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity
-public class Movie {
+public class Movie implements Parcelable {
     @PrimaryKey
     private int id;
     private String movieTitle;
@@ -102,4 +105,44 @@ public class Movie {
     public void setVoteAverage(double voteAverage) {
         this.voteAverage = voteAverage;
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags){
+        dest.writeString(this.movieTitle);
+        dest.writeString(this.overview);
+        dest.writeString(this.poster);
+        dest.writeDouble(this.popularity);
+        dest.writeString(this.releaseDate);
+        dest.writeDouble(this.voteAverage);
+        dest.writeInt(isFavorite?1:0);
+        dest.writeInt(this.id);
+    }
+    public static final Parcelable.Creator<Movie> CREATOR =
+            new Parcelable.Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[0];
+        }
+    };
+
+    public Movie(Parcel in) {
+        this.movieTitle = in.readString();
+        this.overview = in.readString();
+        this.poster = in.readString();
+        this.popularity=in.readDouble();
+        this.releaseDate=in.readString();
+        this.voteAverage = in.readDouble();
+        this.isFavorite = in.readInt()==1;
+        this.id = in.readInt();
+    }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
 }

@@ -15,7 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.mumbojumbo.popularmovies.MovieDetailActivity;
 import com.mumbojumbo.popularmovies.R;
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
-import com.mumbojumbo.popularmovies.model.Movie;
+import com.mumbojumbo.popularmovies.room.entities.Movie;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 
 
@@ -39,14 +39,14 @@ public class MoviePosterViewHolder extends RecyclerView.ViewHolder implements Vi
     }
     public void bind(Movie data){
         this.mData = data;
-        setImage(mData.getmPoster());
+        setImage(mData.getPoster());
     }
 
     @Override
     public void onClick(View v) {
          Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
          Bundle bundle = new Bundle();
-         bundle.putParcelable(MovieResultsFromNetwork.MODEL_KEY,mData);
+         //bundle.putParcelable(MovieResultsFromNetwork.MODEL_KEY,mData);
          intent.putExtra("bundle",bundle);
         v.getContext().startActivity(intent);
     }

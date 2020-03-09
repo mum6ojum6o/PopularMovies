@@ -10,15 +10,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.mumbojumbo.popularmovies.R;
-import com.mumbojumbo.popularmovies.model.Movie;
+import com.mumbojumbo.popularmovies.room.entities.Movie;
 import com.mumbojumbo.popularmovies.viewholders.MoviePosterViewHolder;
 
 import java.util.List;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class MoviePostersAdapter extends RecyclerView.Adapter<MoviePosterViewHolder> {
     List<Movie> mMovies;

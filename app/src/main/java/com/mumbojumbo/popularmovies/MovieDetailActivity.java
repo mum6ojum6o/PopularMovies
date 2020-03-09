@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,15 +19,16 @@ import org.w3c.dom.Text;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements View.OnClickListener{
      ImageView mPoster;
      TextView mMovieTitle;
-    TextView mSynopsis;
-    TextView mRating;
-   TextView mReleaseDate;
+     TextView mSynopsis;
+     TextView mRating;
+     TextView mReleaseDate;
+   ImageView mFavorite;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         mMovieTitle = (TextView)findViewById(R.id.tv_movie_title);
@@ -34,6 +36,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         mRating = (TextView)findViewById(R.id.tv_user_rating);
         mReleaseDate = (TextView)findViewById(R.id.tv_release_date);
         mPoster = (ImageView)findViewById(R.id.iv_movie_poster_detail);
+        mFavorite = (ImageView)findViewById(R.id.iv_favorite);
         Intent activityLauncherIntent = this.getIntent();
         if(activityLauncherIntent!=null){
             if(activityLauncherIntent.hasExtra("bundle")){
@@ -44,6 +47,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 }
             }
         }
+        mFavorite.setOnClickListener(this);
     }
     private void populateUI(Bundle bundle){
         Movie movie=(Movie)(bundle.getParcelable(MovieResultsFromNetwork.MODEL_KEY));
@@ -58,6 +62,14 @@ public class MovieDetailActivity extends AppCompatActivity {
                     .error(R.mipmap.ic_image_placedholder)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(mPoster);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.iv_favorite:
+
         }
     }
 }

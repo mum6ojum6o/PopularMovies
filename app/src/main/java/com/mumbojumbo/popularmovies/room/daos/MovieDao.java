@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.mumbojumbo.popularmovies.room.entities.*;
 
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Dao
 public interface MovieDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     public void save(Movie aMovie);
     @Query("SELECT * FROM Movie where id = (:id)")
     public Movie getMovieById(int id);
@@ -24,5 +25,9 @@ public interface MovieDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void saveAll(List<Movie> movies);
+
+    @Query("SELECT * FROM Movie WHERE isFavorite=1")
+    public LiveData<List<Movie>> getFavoriteMovies();
+
 
 }

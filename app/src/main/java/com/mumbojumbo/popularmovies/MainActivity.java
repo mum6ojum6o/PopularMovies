@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -96,6 +97,9 @@ public class MainActivity extends AppCompatActivity
 
                 }
                 break;
+            case R.id.toolbar_icon_favorite:
+                    startActivity(new Intent(MainActivity.this,FavoritesActivity.class));
+                break;
         }
         return true;
     }
@@ -111,11 +115,13 @@ public class MainActivity extends AppCompatActivity
         mMovieViewModel.getmCachedMovies().observe(this, new Observer<List<com.mumbojumbo.popularmovies.room.entities.Movie>>() {
             @Override
             public void onChanged(List<com.mumbojumbo.popularmovies.room.entities.Movie> movies) {
-                Log.i(TAG,"OnChange:"+movies.toString());
+                Log.i(TAG,"OnChange:"+mMovies.size());
+                mMovies.clear();//is clearing the array a good practice??
                 mMovies.addAll(movies);
                 mMoviePostersAdapter.notifyDataSetChanged();
             }
         });
+
     }
 
 }

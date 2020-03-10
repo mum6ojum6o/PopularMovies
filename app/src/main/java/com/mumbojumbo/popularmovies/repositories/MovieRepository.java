@@ -20,15 +20,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MovieRepository {
     private AppDatabase mDb;
-    public LiveData<List<Movie>> mMovies;
+    private LiveData<List<Movie>> mMovies;
     private IRetrofitService mRetroFitService;
     private static final String TAG="MovieRepository";
-
+    private LiveData<List<Movie>> mFavorites;
     public MovieRepository(Context context){
         this.mDb= AppDatabase.getInstance(context);
     }
     public void saveMovie(Movie aMovie){
-        this.mDb.mMovieDao().save(aMovie);
+
+        AppExecutor executor = AppExecutor.getInstance();
+        executor.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.mMovieDao().save(aMovie);
+            }
+        });
+
     }
 
     public LiveData<List<Movie>> loadAllMovies(){
@@ -39,6 +47,15 @@ public class MovieRepository {
         this.mMovies = this.mDb.mMovieDao().getAllPopularMovies();
         pullFromNetwork(1);
         return this.mMovies;
+    }
+
+    public LiveData<List<Movie>> loadFavorites(){
+        if(mFavorites!=null){
+            return mFavorites;
+        }
+        mFavorites = new MutableLiveData<>(new ArrayList<Movie>());
+        this.mFavorites = this.mDb.mMovieDao().getFavoriteMovies();
+        return this.mFavorites;
     }
 
 

@@ -1,6 +1,7 @@
 package com.mumbojumbo.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.mumbojumbo.popularmovies.room.entities.Movie;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
+import com.mumbojumbo.popularmovies.viewmodels.MovieViewModel;
 
 import org.w3c.dom.Text;
 
@@ -26,7 +28,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
      TextView mRating;
      TextView mReleaseDate;
    ImageView mFavorite;
-
+    Movie mMovie;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
@@ -37,6 +39,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         mReleaseDate = (TextView)findViewById(R.id.tv_release_date);
         mPoster = (ImageView)findViewById(R.id.iv_movie_poster_detail);
         mFavorite = (ImageView)findViewById(R.id.iv_favorite);
+
         Intent activityLauncherIntent = this.getIntent();
         if(activityLauncherIntent!=null){
             if(activityLauncherIntent.hasExtra("bundle")){
@@ -51,6 +54,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
     }
     private void populateUI(Bundle bundle){
         Movie movie=(Movie)(bundle.getParcelable(MovieResultsFromNetwork.MODEL_KEY));
+        this.mMovie = movie;
         if(movie!=null) {
             mMovieTitle.setText(movie.getMovieTitle());
             mSynopsis.setText(movie.getOverview());
@@ -62,6 +66,9 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
                     .error(R.mipmap.ic_image_placedholder)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(mPoster);
+            if(mMovie.isFavorite()){
+                mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
+            }
         }
     }
 
@@ -69,7 +76,20 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch(v.getId()){
             case R.id.iv_favorite:
-
+                updateFavorite();
         }
+    }
+
+    public void updateFavorite(){
+        if(mMovie.isFavorite()){
+            mMovie.setFavorite(false);
+            mFavorite.clearColorFilter();
+
+        }else{
+            mMovie.setFavorite(true);
+            mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
+        }
+        MovieViewModel movieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
+        movieViewModel.updateMovie(mMovie);
     }
 }

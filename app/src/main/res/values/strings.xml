@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="favorite" translatable="true">Favorites</string>
+    <string name="menu_sort_by_rating" translatable="true">Sort By Ratings</string>
+    <string name="menu_sort_by_popularity" translatable="true">Sort By Popularity</string>
+    <string name="synopsis" translatable="true">Synopsis</string>
+    <string name="user_rating" translatable="true">User Rating</string>
+    <string name="release_date" translatable="true">Release Date</string>
 
 </resources>

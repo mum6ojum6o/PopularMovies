@@ -45,7 +45,7 @@ public class FavoritesActivity extends AppCompatActivity implements MoviePosters
                 mFavoriteMovies.clear();
                 mFavoriteMovies.addAll(movies);
                 mMoviePosterAdapter.notifyDataSetChanged();
-                
+
             }
         });
     }

@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+@Deprecated
 @Entity
 public class Movie implements Parcelable {
     @PrimaryKey
@@ -14,13 +15,14 @@ public class Movie implements Parcelable {
     private String overview;
     private double popularity;
     private String poster;
+    private String backdrop;
     private String releaseDate;
     private boolean isFavorite;
     private int page;
     private double voteAverage;
 
     public Movie(int id, String movieTitle, String overview,
-                 double popularity, String poster,
+                 double popularity, String poster, String backdrop,
                  String releaseDate, boolean isFavorite,
                  int page, double voteAverage) {
         this.id = id;
@@ -32,6 +34,20 @@ public class Movie implements Parcelable {
         this.isFavorite = isFavorite;
         this.page = page;
         this.voteAverage = voteAverage;
+        this.backdrop = backdrop;
+    }
+
+    public Movie(com.mumbojumbo.popularmovies.model.Movie movie) {
+
+        this.id = movie.getId();
+        this.movieTitle = movie.getmOriginalTitle();
+        this.overview = movie.getmOverview();
+        this.popularity = movie.getmPopularity();
+        this.poster = movie.getmPoster();
+        this.backdrop = movie.getmBackdrop();
+        this.releaseDate = movie.getmReleaseDate();
+        this.voteAverage = movie.getmVoteAverage();
+
     }
 
     public int getId() {
@@ -111,6 +127,7 @@ public class Movie implements Parcelable {
         dest.writeString(this.movieTitle);
         dest.writeString(this.overview);
         dest.writeString(this.poster);
+        dest.writeString(this.backdrop);
         dest.writeDouble(this.popularity);
         dest.writeString(this.releaseDate);
         dest.writeDouble(this.voteAverage);
@@ -134,6 +151,7 @@ public class Movie implements Parcelable {
         this.movieTitle = in.readString();
         this.overview = in.readString();
         this.poster = in.readString();
+        this.backdrop = in.readString();
         this.popularity=in.readDouble();
         this.releaseDate=in.readString();
         this.voteAverage = in.readDouble();
@@ -144,5 +162,18 @@ public class Movie implements Parcelable {
     public int describeContents() {
         return 0;
     }
+
+    public String getBackdrop() {
+        return backdrop;
+    }
+
+    public void setBackdrop(String backdrop) {
+        this.backdrop = backdrop;
+    }
+
+    public static Creator<Movie> getCREATOR() {
+        return CREATOR;
+    }
+
 
 }

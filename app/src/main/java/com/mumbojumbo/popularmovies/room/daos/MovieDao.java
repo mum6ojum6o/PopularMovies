@@ -7,7 +7,7 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.mumbojumbo.popularmovies.room.entities.*;
+import com.mumbojumbo.popularmovies.model.Movie;
 
 import java.util.List;
 
@@ -20,8 +20,8 @@ public interface MovieDao {
     @Query("SELECT * FROM Movie ORDER BY popularity")
     public LiveData<List<Movie>> getAllPopularMovies();
 
-    @Query("SELECT * FROM Movie ORDER BY voteAverage")
-    public LiveData<List<Movie>> getAllMovieByVotes();
+    /*@Query("SELECT * FROM Movie ORDER BY voteAverage")
+    public LiveData<List<Movie>> getAllMovieByVotes();*/
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void saveAll(List<Movie> movies);

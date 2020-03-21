@@ -1,4 +1,4 @@
-package com.mumbojumbo.popularmovies.adapters;
+package com.mumbojumbo.popularmovies.viewmodels;
 
 import android.app.Application;
 import android.util.Log;
@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.mumbojumbo.popularmovies.model.Movie;
 import com.mumbojumbo.popularmovies.repositories.MovieRepository;
-import com.mumbojumbo.popularmovies.room.entities.Movie;
 
 import java.util.List;
 

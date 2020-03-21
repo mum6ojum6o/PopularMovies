@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,16 +15,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
-import com.mumbojumbo.popularmovies.repositories.MovieRepository;
-import com.mumbojumbo.popularmovies.room.entities.Movie;
-import com.mumbojumbo.popularmovies.model.Result;
-import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
+import com.mumbojumbo.popularmovies.model.Movie;
 import com.mumbojumbo.popularmovies.viewmodels.MovieViewModel;
+import com.mumbojumbo.popularmovies.viewmodels.TopRatedMoviesViewModel;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import retrofit2.*;
 
 public class MainActivity extends AppCompatActivity
         implements MoviePostersAdapter.IGetMoreMovies{
@@ -36,18 +31,17 @@ public class MainActivity extends AppCompatActivity
     /*@BindView(R.id.rv_movie_posters)*/ RecyclerView mRecyclerView;
     private static final String url="";
     private List<Movie> mMovies;
-    private Result mResult;
     private MoviePostersAdapter mMoviePostersAdapter;
-    private MovieResultsFromNetwork mMovieResultsFromNetwork;
     private MovieViewModel mMovieViewModel;
+    private TopRatedMoviesViewModel mTopRatedMovieModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG,"in onCreate()");
         setContentView(R.layout.activity_main);
         mRecyclerView = findViewById(R.id.rv_movie_posters);
         this.mMovies = new ArrayList<Movie>();
-
         GridLayoutManager manager = new GridLayoutManager(MainActivity.this,4);
         mMoviePostersAdapter = new MoviePostersAdapter(mMovies,1,this);
         mRecyclerView.setLayoutManager(manager);
@@ -68,7 +62,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void getMoviesFromPage(int page) {
-        mMovieViewModel.pullFromNetwork(page);
+        if(this.mSortOption==1)
+            mMovieViewModel.pullFromNetwork(page);
+        else
+            mTopRatedMovieModel.getMoreTopRatedMovies(page);
     }
 
     @Override
@@ -86,16 +83,21 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_item_popularity:
                 if(this.mSortOption !=1) {
                     this.mSortOption =1;
-                    /*this.mMovies.clear();*/
+                    mMoviePostersAdapter.resetPages();
+                    setupViewModel();
+                    fetchResultsBasedOnPreferences();
+                 }
 
-                }
                 break;
             case R.id.menu_item_ratings:
                 if(this.mSortOption !=0) {
                     this.mSortOption = 0;
-                    /*this.mMovies.clear();*/
+                    mMoviePostersAdapter.resetPages();
+                    setupViewModel();
+                    fetchResultsBasedOnPreferences();
 
                 }
+
                 break;
             case R.id.toolbar_icon_favorite:
                     startActivity(new Intent(MainActivity.this,FavoritesActivity.class));
@@ -110,18 +112,43 @@ public class MainActivity extends AppCompatActivity
         outState.putInt(this.RESTORE_SORT_OPTIONS_KEY,this.mSortOption);
     }
 
-    public void setupViewModel(){
-         mMovieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
-        mMovieViewModel.getmCachedMovies().observe(this, new Observer<List<com.mumbojumbo.popularmovies.room.entities.Movie>>() {
+    private void setupViewModel(){
+        if(this.mSortOption==1) {
+            if(mMovieViewModel==null)
+                mMovieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
+        }
+        else {
+            if(this.mTopRatedMovieModel==null) {
+                mTopRatedMovieModel = new ViewModelProvider(this).get(TopRatedMoviesViewModel.class);
+            }
+        }
+
+        fetchResultsBasedOnPreferences();
+    }
+
+    private void fetchPopularMovies(){
+        mMovieViewModel.getPopularMovies().observe(this, new Observer<List<Movie>>() {
             @Override
-            public void onChanged(List<com.mumbojumbo.popularmovies.room.entities.Movie> movies) {
-                Log.i(TAG,"OnChange:"+mMovies.size());
-                mMovies.clear();//is clearing the array a good practice??
-                mMovies.addAll(movies);
+            public void onChanged(List<Movie> movies) {
+                Log.i(TAG,"OnChange:"+movies.size());
+                mMoviePostersAdapter.setMovies(movies);
                 mMoviePostersAdapter.notifyDataSetChanged();
             }
         });
+    }
 
+    private void fetchTopRatedMovies(){
+        mTopRatedMovieModel.getTopRatedMovies().observe(this, (List<Movie> movie) -> {
+           mMoviePostersAdapter.setMovies(movie);
+           mMoviePostersAdapter.notifyDataSetChanged();
+        });
+    }
+    private void fetchResultsBasedOnPreferences(){
+        if(this.mSortOption==1){
+            fetchPopularMovies();
+        }else{
+            fetchTopRatedMovies();
+        }
     }
 
 }

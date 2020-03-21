@@ -1,9 +1,12 @@
 package com.mumbojumbo.popularmovies;
 
+import android.content.Context;
+import android.content.Intent;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 
@@ -16,6 +19,7 @@ import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -43,10 +47,18 @@ public class MainActivityTest {
 
     @Test
     public void onCreate() {
+        assertNotNull(onView(withId(R.id.rv_movie_posters)));
+
+
+
+
+    }
+
+    @Test
+    public void optionsMenuVisibleTest(){
         openActionBarOverflowOrOptionsMenu(activityTestRule.getActivity());
         onView(withText(R.string.menu_sort_by_popularity));
         onView(withText(R.string.menu_sort_by_rating));
-
     }
 
     @Test

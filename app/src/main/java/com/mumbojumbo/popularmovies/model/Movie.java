@@ -3,57 +3,134 @@ package com.mumbojumbo.popularmovies.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
+@Entity
 public class Movie implements Parcelable {
-    @SerializedName("original_title")
-    private String mOriginalTitle;
-    @SerializedName("title")
-    private String mTitle;
-    @SerializedName("overview")
-    private String mOverview;
-    @SerializedName("popularity")
-    private double mPopularity;
-    @SerializedName("poster_path")
-    private String mPoster;
-    @SerializedName("release_date")
-    private String mReleaseDate;
-
+    @PrimaryKey
+    @ColumnInfo(name="id")
     @SerializedName("id")
     private int mId;
+    @Ignore
+    @SerializedName("original_title")
+    private String mOriginalTitle;
+    @ColumnInfo(name="movieTitle")
+    @SerializedName("title")
+    private String mTitle;
+    @ColumnInfo(name="overview")
+    @SerializedName("overview")
+    private String mOverview;
+    @ColumnInfo(name="popularity")
+    @SerializedName("popularity")
+    private double mPopularity;
+    @ColumnInfo(name="poster")
+    @SerializedName("poster_path")
+    private String mPoster;
+    @ColumnInfo(name="backdrop")
+    @SerializedName("backdrop_path")
+    private String mBackdrop;
+    @ColumnInfo(name="releaseDate")
+    @SerializedName("release_date")
+    private String mReleaseDate;
+    private boolean isFavorite;
+   /*
+    private int page;
+    private double voteAverage;*/
 
+    @Ignore
     @SerializedName("vote_average")
     private double mVoteAverage;
 
+
+    public Movie(){}
+
+    @Ignore
     public Movie(int mId) {
         this.mId = mId;
     }
-
+    @Ignore
     public Movie(Parcel in) {
+        this.mId = in.readInt();
         this.mOriginalTitle = in.readString();
         this.mOverview = in.readString();
         this.mPoster = in.readString();
+        this.mBackdrop = in.readString();
         this.mPopularity=in.readDouble();
         this.mReleaseDate=in.readString();
     }
 
+    @Ignore
     public Movie(String mOriginalTitle, String mTitle,
-                 String mOverview, double mPopularity,
-                 String mPoster, String mReleaseDate, int id) {
+                 String mOverview, double mPopularity, String mPoster,
+                  String backdrop, String mReleaseDate, int id) {
         this.mOriginalTitle = mOriginalTitle;
         this.mTitle = mTitle;
         this.mOverview = mOverview;
         this.mPopularity = mPopularity;
         this.mPoster = mPoster;
+        this.mBackdrop = backdrop;
         this.mReleaseDate = mReleaseDate;
         this.mId = id;
+    }
+    @Ignore
+    public Movie(String mOriginalTitle, String mTitle,
+                 String mOverview, double mPopularity, String mPoster,
+                 String backdrop, String mReleaseDate, int id,boolean isFavorite,
+                 double voteAverage,int page) {
+        //this.mOriginalTitle = mOriginalTitle;
+        this.mTitle = mTitle;
+        this.mOverview = mOverview;
+        this.mPopularity = mPopularity;
+        this.mPoster = mPoster;
+        this.mBackdrop = backdrop;
+        this.mReleaseDate = mReleaseDate;
+        this.mId = id;
+        this.isFavorite = isFavorite;
+        /*this.voteAverage =voteAverage;
+        this.page = page;
+        */
+    }
+    @Ignore
+    public Movie(String mOriginalTitle, String mTitle,
+                 String mOverview, double mPopularity, String mPoster,
+                 String backdrop, String mReleaseDate, int id,boolean isFavorite) {
+        //this.mOriginalTitle = mOriginalTitle;
+        this.mTitle = mTitle;
+        this.mOverview = mOverview;
+        this.mPopularity = mPopularity;
+        this.mPoster = mPoster;
+        this.mBackdrop = backdrop;
+        this.mReleaseDate = mReleaseDate;
+        this.mId = id;
+        /*this.voteAverage =voteAverage;
+        this.page = page;*/
+        this.isFavorite = isFavorite;
+    }
+    @Ignore
+    public Movie(int id, String movieTitle, String overview,
+                 double popularity, String poster, String backdrop,
+                 String releaseDate, boolean isFavorite//,
+                /* int page, double voteAverage*/) {
+        this.mId = id;
+        this.mTitle = movieTitle;
+        this.mOverview = overview;
+        this.mPopularity = popularity;
+        this.mPoster = poster;
+        this.mReleaseDate = releaseDate;
+        this.isFavorite = isFavorite;
+        this.mBackdrop = backdrop;
     }
 
     public int getId() {
         return mId;
     }
 
-    public void setmId(int mId) {
+    public void setId(int mId) {
         this.mId = mId;
     }
 
@@ -68,40 +145,55 @@ public class Movie implements Parcelable {
     public String getmTitle() {
         return mTitle;
     }
+    public String getTitle() {
+        return mTitle;
+    }
 
-    public void setmTitle(String mTitle) {
+    public void setTitle(String mTitle) {
         this.mTitle = mTitle;
     }
 
     public String getmOverview() {
         return mOverview;
     }
+    public String getOverview() {
+        return mOverview;
+    }
 
-    public void setmOverview(String mOverview) {
+    public void setOverview(String mOverview) {
         this.mOverview = mOverview;
     }
 
     public double getmPopularity() {
         return mPopularity;
     }
+    public double getPopularity() {
+        return mPopularity;
+    }
 
-    public void setmPopularity(double mPopularity) {
+    public void setPopularity(double mPopularity) {
         this.mPopularity = mPopularity;
     }
 
     public String getmPoster() {
         return mPoster;
     }
+    public String getPoster() {
+        return mPoster;
+    }
 
-    public void setmPoster(String mPoster) {
+    public void setPoster(String mPoster) {
         this.mPoster = mPoster;
     }
 
     public String getmReleaseDate() {
         return mReleaseDate;
     }
+    public String getReleaseDate() {
+        return mReleaseDate;
+    }
 
-    public void setmReleaseDate(String mReleaseDate) {
+    public void setReleaseDate(String mReleaseDate) {
         this.mReleaseDate = mReleaseDate;
     }
     public double getmVoteCount() {
@@ -117,11 +209,64 @@ public class Movie implements Parcelable {
         return 0;
     }
 
+    public String getmBackdrop() {
+        return mBackdrop;
+    }
+    public String getBackdrop() {
+        return mBackdrop;
+    }
+
+    public void setBackdrop(String mBackdrop) {
+        this.mBackdrop = mBackdrop;
+    }
+
+    public double getmVoteAverage() {
+        return mVoteAverage;
+    }
+
+    public void setmVoteAverage(double mVoteAverage) {
+        this.mVoteAverage = mVoteAverage;
+    }
+
+    public int getmId() {
+        return mId;
+    }
+
+    /*public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }*/
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
+
+   /* public double getVoteAverage() {
+        return voteAverage;
+    }
+
+    public void setVoteAverage(double voteAverage) {
+        this.voteAverage = voteAverage;
+    }*/
+
+    public static Creator<Movie> getCREATOR() {
+        return CREATOR;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.mId);
         dest.writeString(this.mOriginalTitle);
         dest.writeString(this.mOverview);
         dest.writeString(this.mPoster);
+        dest.writeString(this.mBackdrop);
         dest.writeDouble(this.mPopularity);
         dest.writeString(this.mReleaseDate);
 

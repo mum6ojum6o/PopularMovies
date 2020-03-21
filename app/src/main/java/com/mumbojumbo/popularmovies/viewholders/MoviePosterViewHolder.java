@@ -14,7 +14,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.mumbojumbo.popularmovies.MovieDetailActivity;
 import com.mumbojumbo.popularmovies.R;
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
-import com.mumbojumbo.popularmovies.room.entities.Movie;
+import com.mumbojumbo.popularmovies.model.Movie;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 
 
@@ -38,7 +38,7 @@ public class MoviePosterViewHolder extends RecyclerView.ViewHolder implements Vi
     }
     public void bind(Movie data){
         this.mData = data;
-        setImage(mData.getPoster());
+        setImage(mData.getmPoster());
     }
 
     @Override

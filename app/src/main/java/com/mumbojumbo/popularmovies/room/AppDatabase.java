@@ -5,8 +5,10 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+
+import com.mumbojumbo.popularmovies.model.Movie;
 import com.mumbojumbo.popularmovies.room.daos.MovieDao;
-import com.mumbojumbo.popularmovies.room.entities.Movie;
+
 
 
 @Database(entities={Movie.class},version=1,exportSchema = false)

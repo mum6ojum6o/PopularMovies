@@ -1,14 +1,19 @@
 package com.mumbojumbo.popularmovies.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
-public class Result {
+public class Result<T> {
+    @SerializedName("page")
     int mPage;
+
     int total_results;
     int total_pages;
-    List<Movie> results;
 
-    public Result(int mPage, int total_results, int total_pages, List<Movie> results) {
+    List<T> results;
+
+    public Result(int mPage, int total_results, int total_pages, List<T> results) {
         this.mPage = mPage;
         this.total_results = total_results;
         this.total_pages = total_pages;
@@ -39,11 +44,11 @@ public class Result {
         this.total_pages = total_pages;
     }
 
-    public List<Movie> getResults() {
+    public List<T> getResults() {
         return results;
     }
 
-    public void setResults(List<Movie> results) {
+    public void setResults(List<T> results) {
         this.results = results;
     }
 }

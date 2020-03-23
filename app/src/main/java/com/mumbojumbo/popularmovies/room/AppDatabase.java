@@ -13,6 +13,7 @@ import com.mumbojumbo.popularmovies.room.daos.MovieDao;
 
 @Database(entities={Movie.class},version=1,exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
+    private static final Object LOCK = new Object();
     private volatile static AppDatabase mDb;
     public abstract MovieDao mMovieDao();
 
@@ -20,8 +21,9 @@ public abstract class AppDatabase extends RoomDatabase {
         if(mDb!=null){
             return mDb;
         }
-        synchronized (new Object()) {
-            mDb = Room.databaseBuilder(context, AppDatabase.class, "Popular_Movies").build();
+        synchronized (LOCK) {
+            mDb = Room.databaseBuilder(context, AppDatabase.class, "Popular_Movies")
+                    .build();
         }
         return mDb;
     }

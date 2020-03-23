@@ -13,21 +13,19 @@ import java.util.List;
 
 @Dao
 public interface MovieDao {
+    @Insert
+    public void insertMovie(Movie aMovie);
+
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    public void save(Movie aMovie);
-    @Query("SELECT * FROM Movie where id = (:id)")
-    public Movie getMovieById(int id);
+    public void updateMovie(Movie aMovie);
+
+    @Query("SELECT * FROM Movie where movieId = (:id)")
+    public LiveData<Movie> getMovieById(int id);
+
     @Query("SELECT * FROM Movie ORDER BY popularity")
     public LiveData<List<Movie>> getAllPopularMovies();
 
-    /*@Query("SELECT * FROM Movie ORDER BY voteAverage")
-    public LiveData<List<Movie>> getAllMovieByVotes();*/
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    public void saveAll(List<Movie> movies);
-
     @Query("SELECT * FROM Movie WHERE isFavorite=1")
     public LiveData<List<Movie>> getFavoriteMovies();
-
 
 }

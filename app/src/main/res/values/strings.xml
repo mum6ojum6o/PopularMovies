@@ -6,5 +6,5 @@
     <string name="synopsis" translatable="true">Synopsis</string>
     <string name="user_rating" translatable="true">User Rating</string>
     <string name="release_date" translatable="true">Release Date</string>
-
+    <string name="youtube_url" translatable="false"></string>
 </resources>

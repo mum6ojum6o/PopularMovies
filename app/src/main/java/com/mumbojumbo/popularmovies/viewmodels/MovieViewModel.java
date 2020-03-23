@@ -34,8 +34,11 @@ public class MovieViewModel extends AndroidViewModel {
     public LiveData<List<Movie>> getPopularMovies(){
         return this.mMovies;
     }
+    public void insertMovie(Movie aMovie){
+        mMovieRepository.insertMovie(aMovie);
+    }
     public void updateMovie(Movie aMovie){
-        new MovieRepository(getApplication()).saveMovie(aMovie);
+        mMovieRepository.updateMovie(aMovie);
     }
 
 

@@ -43,4 +43,8 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsViewHo
     public interface IMovieReviewsListener{
         public void getMoreReviews();
     }
+
+    public void setReview(List<Comment> comments){
+        this.mReviews = comments;
+    }
 }

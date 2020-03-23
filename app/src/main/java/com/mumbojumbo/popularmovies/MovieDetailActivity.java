@@ -1,7 +1,6 @@
 package com.mumbojumbo.popularmovies;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,34 +9,47 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.mumbojumbo.popularmovies.adapters.MovieReviewsAdapter;
+import com.mumbojumbo.popularmovies.adapters.VideoAdapter;
 import com.mumbojumbo.popularmovies.model.Comment;
 import com.mumbojumbo.popularmovies.model.Movie;
 //import com.mumbojumbo.popularmovies.room.entities.Movie;
+import com.mumbojumbo.popularmovies.model.Videos;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
+import com.mumbojumbo.popularmovies.viewmodels.FavoriteMoviesViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.MovieCommentsViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.MovieReviewsViewModelFactory;
 import com.mumbojumbo.popularmovies.viewmodels.MovieViewModel;
+import com.mumbojumbo.popularmovies.viewmodels.VideosViewModel;
+import com.mumbojumbo.popularmovies.viewmodels.VideosViewModelFactory;
+
 import java.util.ArrayList;
 import java.util.List;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
-public class MovieDetailActivity extends AppCompatActivity implements View.OnClickListener, MovieReviewsAdapter.IMovieReviewsListener{
-     ImageView mPoster;
+public class MovieDetailActivity extends AppCompatActivity implements View.OnClickListener, MovieReviewsAdapter.IMovieReviewsListener, VideoAdapter.IMovieVideoClickListener{
+    private static final String TAG = "MovieDetailActivity";
+    ImageView mPoster;
      TextView mMovieTitle;
      TextView mSynopsis;
      TextView mRating;
      TextView mReleaseDate;
      TextView mReviews;
+     TextView mVideos;
      RecyclerView mMovieMiscDetails;
      List<Comment> mReviewsList;
+     List<Videos> mVideoList;
+
      MovieReviewsAdapter mMovieReviewAdapter;
+     FavoriteMoviesViewModel favoriteMoviesViewModel;
+     VideoAdapter mVideoAdapter;
    ImageView mFavorite;
     Movie mMovie;
     int mCurrentpage;
@@ -52,9 +64,11 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         mPoster = (ImageView)findViewById(R.id.iv_movie_poster_detail);
         mFavorite = (ImageView)findViewById(R.id.iv_favorite);
         mReviews = (TextView)findViewById(R.id.tv_reviews);
+        mVideos = (TextView)findViewById(R.id.tv_trailers);
         mMovieMiscDetails = (RecyclerView)findViewById(R.id.rv_movie_misc);
         mMovieMiscDetails.setVisibility(View.INVISIBLE);
-
+        mMovieReviewAdapter = new MovieReviewsAdapter(new ArrayList<Comment>(),this);
+        mVideoAdapter = new VideoAdapter(new ArrayList<Videos>(), this);
         Intent activityLauncherIntent = this.getIntent();
         if(activityLauncherIntent!=null){
             if(activityLauncherIntent.hasExtra("bundle")){
@@ -67,10 +81,11 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         }
         mFavorite.setOnClickListener(this);
         mReviews.setOnClickListener(this);
-        mMovieReviewAdapter = new MovieReviewsAdapter(mReviewsList,this);
+        mVideos.setOnClickListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mMovieMiscDetails.setLayoutManager(linearLayoutManager);
-        mMovieMiscDetails.setAdapter(mMovieReviewAdapter);
+        //
+
 
     }
     private void populateUI(Bundle bundle){
@@ -104,70 +119,114 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.tv_reviews:
                 showReviews();
+                break;
+            case R.id.tv_trailers:
+                showVideos();
+                break;
         }
     }
 
     public void updateFavorite(){
-        /*if(mMovie.isFavorite()){
-            mMovie.setFavorite(false);
-            mFavorite.clearColorFilter();
+        if(mMovie.getTableId()!=0){
+            if(mMovie.isFavorite()) {
+                mMovie.setFavorite(false);
+                mFavorite.clearColorFilter();
+            }else{
+                mMovie.setFavorite(true);
+                mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
+            }
+            favoriteMoviesViewModel.updateMovie(mMovie);
 
-        }else{*/
-        mMovie.setFavorite(true);
-        mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
-        //}*/
-        MovieViewModel movieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
-        movieViewModel.updateMovie(mMovie);
+        }else{
+            mMovie.setFavorite(true);
+            mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
+            favoriteMoviesViewModel.insertMovie(mMovie);
+        }
     }
 
-    /*public void launchReviews(){
-        Intent intent = new Intent(MovieDetailActivity.this,MovieReviewsActivity.class);
-        intent.putExtra(MovieReviewsActivity.MOVIEID_KEY,mMovie.getId());
-        startActivity(intent);
-    }*/
+    public void showVideos(){
+        if(mMovieMiscDetails.getVisibility()==View.INVISIBLE ) {
+
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
+                    RecyclerView.HORIZONTAL,false);
+            mMovieMiscDetails.setLayoutManager(linearLayoutManager);
+            mMovieMiscDetails.setAdapter(mVideoAdapter);
+            mVideoAdapter.setmVideos(mVideoList);
+            mVideoAdapter.notifyDataSetChanged();
+            mMovieMiscDetails.setVisibility(View.VISIBLE);
+        }else{
+            mMovieMiscDetails.setVisibility(View.INVISIBLE);
+        }
+    }
 
 
     public void showReviews(){
-        if(mMovieMiscDetails.getVisibility()==View.INVISIBLE ) {
+        if(mMovieMiscDetails.getVisibility()==View.INVISIBLE) {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                     RecyclerView.HORIZONTAL,false);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
             mMovieMiscDetails.setAdapter(mMovieReviewAdapter);
+            mMovieReviewAdapter.setReview(mReviewsList);
             mMovieReviewAdapter.notifyDataSetChanged();
             mMovieMiscDetails.setVisibility(View.VISIBLE);
         }else{
-            List<Comment> temp =new ArrayList<>(mReviewsList);
-            mReviewsList.clear();
+
+            mMovieReviewAdapter.setReview(new ArrayList<>());
             mMovieReviewAdapter.notifyDataSetChanged();
             mMovieMiscDetails.setVisibility(View.INVISIBLE);
-            mReviewsList.addAll(temp);
-            temp.clear();
+
         }
     }
     public void setupViewModel(){
-        MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getId()).create(MovieCommentsViewModel.class);
+
+        setupMovieCommentsViewModel();
+        setupVideoViewModel();
+        setUpFavoritesViewModel();
+
+    }
+
+    private void setupVideoViewModel(){
+        VideosViewModel videoViewModel = new VideosViewModelFactory(this.getApplication(),mMovie.getMovieId()).create(VideosViewModel.class);
+        videoViewModel.getVideos().observe(this,(List<Videos> videos)->{
+            mVideoAdapter.setmVideos(videos);
+            mVideos.setText("Trailers ("+videos.size()+")");
+            mVideoList = videos;
+            mMovieMiscDetails.setAdapter(mVideoAdapter);
+            mVideoAdapter.notifyDataSetChanged();
+        });
+    }
+
+    private void setupMovieCommentsViewModel(){
+        MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getMovieId()).create(MovieCommentsViewModel.class);
         mCurrentpage = 1;
         viewModel.getComments().observe(this, new Observer<List<Comment>>() {
             @Override
             public void onChanged(List<Comment> comments) {
-                addRecentlyFetchedResponsesToComments(comments);
-                updateViewsAssociatedWithReviews();
+                updateViewsAssociatedWithReviews(comments);
             }
         });
     }
 
-    private void addRecentlyFetchedResponsesToComments(List<Comment> comments){
-        for(Comment aComment :comments){
-            if(!mReviewsList.contains(aComment)) mReviewsList.add(aComment);
-        }
+    private void setUpFavoritesViewModel(){
+        favoriteMoviesViewModel = new ViewModelProvider(this).get(FavoriteMoviesViewModel.class);
+        favoriteMoviesViewModel.getAFavorite(mMovie.getMovieId()).observe(this,(Movie aMovie)->{
+            if(aMovie!= null){
+                Log.i(TAG,"Favorites onChanged: isFavorite:"+aMovie.isFavorite());
+                mMovie.setFavorite(aMovie.isFavorite());
+                mMovie.setTableId(aMovie.getTableId());
+                if(aMovie.isFavorite()) {
+                    mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
+                }
+            }
+        });
     }
 
-    private void updateViewsAssociatedWithReviews(){
+    private void updateViewsAssociatedWithReviews(List<Comment> comments){
         StringBuilder sb = new StringBuilder();
-        sb.append("Reviews(");sb.append(mReviewsList.size());sb.append(")");
+        sb.append("Reviews(");sb.append(comments.size());sb.append(")");
         mReviews.setText(sb.toString());
-
-
+        mMovieReviewAdapter.setReview(comments);
+        mReviewsList = comments;
         /*
         Ugly Code:
         this is needed because, if the recyclerview is being scrolled or is calculating while a
@@ -184,13 +243,32 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void getMoreReviews() {
-        MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getId()).create(MovieCommentsViewModel.class);
-        viewModel.getCommentsByPage(mMovie.getId(),++mCurrentpage).observe(this, new Observer<List<Comment>>() {
+        MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getMovieId())
+                .create(MovieCommentsViewModel.class);
+        viewModel.getCommentsByPage(mMovie.getMovieId(),++mCurrentpage).observe(this, new Observer<List<Comment>>() {
             @Override
             public void onChanged(List<Comment> comments) {
-                addRecentlyFetchedResponsesToComments(comments);
-                updateViewsAssociatedWithReviews();
+
+                updateViewsAssociatedWithReviews(comments);
             }
         });
+    }
+
+    @Override
+    public void onVideoItemClick(String videoName, String videoType, String key) {
+        //Toast.makeText(this,"Clicked on Video", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("vnd.youtube:" + key));
+        if(packageAvailable(intent))
+            startActivity(intent);
+        else {
+            intent.setData(Uri.parse("http://www.youtube.com/watch?v=" + key));
+            if(packageAvailable(intent))
+                startActivity(intent);
+        }
+    }
+
+    private boolean packageAvailable(Intent intent){
+        return getPackageManager().resolveActivity(intent,0)!=null;
     }
 }

@@ -4,13 +4,12 @@ import android.content.Context;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.mumbojumbo.popularmovies.model.Comment;
 import com.mumbojumbo.popularmovies.model.Movie;
 import com.mumbojumbo.popularmovies.model.Result;
+import com.mumbojumbo.popularmovies.model.Videos;
 import com.mumbojumbo.popularmovies.retrofit.IRetrofitService;
 import com.mumbojumbo.popularmovies.room.AppDatabase;
-//import com.mumbojumbo.popularmovies.room.entities.Movie;
 import com.mumbojumbo.popularmovies.utils.AppExecutor;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,35 +28,47 @@ public class MovieRepository {
     private static final String TAG="MovieRepository";
     private LiveData<List<Movie>> mFavorites;
     private MutableLiveData<List<Comment>> mComments;
+    private MutableLiveData<List<Videos>> mVideos;
     public MovieRepository(Context context){
 
-        this.mDb= AppDatabase.getInstance(context);
+        this.mDb = AppDatabase.getInstance(context);
     }
-    public void saveMovie(Movie aMovie){
+    public void insertMovie(Movie aMovie){
         AppExecutor executor = AppExecutor.getInstance();
         executor.diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                mDb.mMovieDao().save(aMovie);
+                mDb.mMovieDao().insertMovie(aMovie);
             }
         });
     }
 
-    /*public LiveData<List<Movie>> loadAllMovies(){
-        if(mMovies!=null){
-           return mMovies;
-        }
-        this.mMovies = new MutableLiveData<>(new ArrayList<Movie>());
-        this.mMovies = this.mDb.mMovieDao().getAllPopularMovies();
-        pullFromNetwork(1);
-        return this.mMovies;
-    }*/
+    public LiveData<Movie> getAFavorite(int movieId){
+        return this.mDb.mMovieDao().getMovieById(movieId);
+    }
+
+    public void updateMovie(Movie aMovie){
+        AppExecutor executor = AppExecutor.getInstance();
+        executor.diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.mMovieDao().updateMovie(aMovie);
+            }
+        });
+    }
+
 
     public LiveData<List<Movie>> loadFavorites(){
-        if(mFavorites!=null){
-            return mFavorites;
+        Log.i(TAG,"loadFavorites:");
+        if(mFavorites==null){
+            Log.i(TAG,"loadFavorites:initalizing DS");
+            mFavorites = new MutableLiveData<>(new ArrayList<>());
         }
-        mFavorites = new MutableLiveData<>(new ArrayList<Movie>());
+        List<Movie> movies = this.mDb.mMovieDao().getFavoriteMovies().getValue();
+        if(movies!=null)
+            Log.i(TAG,"loadFavorites: fetched movies");
+        else
+            Log.i(TAG,"loadFavorites: movies is null");
         this.mFavorites = this.mDb.mMovieDao().getFavoriteMovies();
         return this.mFavorites;
     }
@@ -89,8 +100,6 @@ public class MovieRepository {
         }
         return mTopRatedMovies;
     }
-
-
 
     public MutableLiveData<List<Movie>> getPopularMovie(int page){
         if(mPopularMovies == null) {
@@ -141,7 +150,9 @@ public class MovieRepository {
             @Override
             public void onResponse(Call<Result<Comment>> call, Response<Result<Comment>> response) {
                 if(response.isSuccessful()) {
-                    mComments.setValue(response.body().getResults());
+                    List<Comment> previousComments = mComments.getValue();
+                    previousComments.addAll(response.body().getResults());
+                    mComments.postValue(previousComments);
 
                 }
             }
@@ -153,6 +164,36 @@ public class MovieRepository {
         });
 
         return mComments;
+    }
+
+    public MutableLiveData<List<Videos>> getVideos(final int movieId){
+        Log.i(TAG,"getVideos for :"+movieId);
+        if(mVideos==null)
+            mVideos = new MutableLiveData<>(new ArrayList<>());
+
+        if(mRetroFitService==null)
+            buildRetrofitInstance();
+
+        mRetroFitService.getVideos(movieId).enqueue(new Callback<Result<Videos>>() {
+            @Override
+            public void onResponse(Call<Result<Videos>> call, Response<Result<Videos>> response) {
+                if(response.isSuccessful()){
+                    Log.i(TAG," getVideos.onResponse: Videos response was successfull");
+                    if(response.body()!=null){
+                        Log.i(TAG,"getVideos.onResponse: Payload is not null");
+                        List<Videos>videos = mVideos.getValue();
+                        videos.addAll(response.body().getResults());
+                        mVideos.postValue(videos);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Result<Videos>> call, Throwable t) {
+                Log.i(TAG,"getVideos.onFailure:Crickey!! Something Went wrong while pulling toprated movies from the network");
+            }
+        });
+        return mVideos;
     }
 
     private void buildRetrofitInstance(){

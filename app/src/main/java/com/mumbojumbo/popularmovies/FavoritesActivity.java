@@ -27,8 +27,7 @@ public class FavoritesActivity extends AppCompatActivity implements MoviePosters
         setContentView(R.layout.activity_favorites);
         mRecyclerView = (RecyclerView)findViewById(R.id.rv_favorites);
 
-        mFavoriteMovies = new ArrayList<>();
-        mMoviePosterAdapter = new MoviePostersAdapter(mFavoriteMovies,1,this);
+        mMoviePosterAdapter = new MoviePostersAdapter(new ArrayList<>(),1,this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,4);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setAdapter(mMoviePosterAdapter);
@@ -41,8 +40,7 @@ public class FavoritesActivity extends AppCompatActivity implements MoviePosters
             /*@Override
             public void onChanged(List<Movie> movies) {*/
             Log.i(TAG, "favorites updated!!");
-            mFavoriteMovies.clear();
-            mFavoriteMovies.addAll(movies);
+            mMoviePosterAdapter.setMovies(movies);
             mMoviePosterAdapter.notifyDataSetChanged();
         });
     }

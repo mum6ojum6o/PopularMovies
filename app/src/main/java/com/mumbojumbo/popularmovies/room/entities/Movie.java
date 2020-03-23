@@ -39,7 +39,7 @@ public class Movie implements Parcelable {
 
     public Movie(com.mumbojumbo.popularmovies.model.Movie movie) {
 
-        this.id = movie.getId();
+        this.id = movie.getTableId();
         this.movieTitle = movie.getmOriginalTitle();
         this.overview = movie.getmOverview();
         this.popularity = movie.getmPopularity();

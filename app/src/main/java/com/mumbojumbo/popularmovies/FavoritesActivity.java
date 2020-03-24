@@ -31,6 +31,7 @@ public class FavoritesActivity extends AppCompatActivity implements MoviePosters
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,4);
         mRecyclerView.setLayoutManager(gridLayoutManager);
         mRecyclerView.setAdapter(mMoviePosterAdapter);
+        getSupportActionBar().setTitle(R.string.favorite);
         setUpViewModel();
     }
 

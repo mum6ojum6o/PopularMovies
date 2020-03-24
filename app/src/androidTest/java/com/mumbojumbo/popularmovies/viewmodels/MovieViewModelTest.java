@@ -1,14 +1,10 @@
 package com.mumbojumbo.popularmovies.viewmodels;
 
-import android.app.Instrumentation;
-
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import com.mumbojumbo.popularmovies.MainActivity;
-import com.mumbojumbo.popularmovies.room.entities.Movie;
 
 import org.junit.Before;
 import org.junit.Rule;

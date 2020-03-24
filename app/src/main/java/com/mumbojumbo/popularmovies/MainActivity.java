@@ -1,24 +1,20 @@
 package com.mumbojumbo.popularmovies;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
 import com.mumbojumbo.popularmovies.model.Movie;
 import com.mumbojumbo.popularmovies.viewmodels.MovieViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.TopRatedMoviesViewModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +79,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_item_popularity:
                 if(this.mSortOption !=1) {
                     this.mSortOption =1;
+                    getSupportActionBar().setTitle(R.string.app_name);
                     mMoviePostersAdapter.resetPages();
                     setupViewModel();
                     fetchResultsBasedOnPreferences();
@@ -92,6 +89,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_item_ratings:
                 if(this.mSortOption !=0) {
                     this.mSortOption = 0;
+                    getSupportActionBar().setTitle(R.string.top_rated);
                     mMoviePostersAdapter.resetPages();
                     setupViewModel();
                     fetchResultsBasedOnPreferences();
@@ -115,11 +113,13 @@ public class MainActivity extends AppCompatActivity
     private void setupViewModel(){
         if(this.mSortOption==1) {
             if(mMovieViewModel==null)
-                mMovieViewModel = new ViewModelProvider(this).get(MovieViewModel.class);
+                mMovieViewModel = new ViewModelProvider(this)
+                        .get(MovieViewModel.class);
         }
         else {
             if(this.mTopRatedMovieModel==null) {
-                mTopRatedMovieModel = new ViewModelProvider(this).get(TopRatedMoviesViewModel.class);
+                mTopRatedMovieModel = new ViewModelProvider(this)
+                        .get(TopRatedMoviesViewModel.class);
             }
         }
 

@@ -27,7 +27,7 @@ public class MovieRepository {
     private IRetrofitService mRetroFitService;
     private static final String TAG="MovieRepository";
     private LiveData<List<Movie>> mFavorites;
-    private MutableLiveData<List<Comment>> mComments;
+    private MutableLiveData<Result<Comment>> mComments;
     private MutableLiveData<List<Videos>> mVideos;
     public MovieRepository(Context context){
 
@@ -138,9 +138,11 @@ public class MovieRepository {
         return mPopularMovies;
     }
 
-    public MutableLiveData<List<Comment>> getComments(final int movieId, final int page ){
+    public MutableLiveData<Result<Comment>> getComments(final int movieId, final int page ){
         if(mComments==null){
-            mComments = new MutableLiveData<>(new ArrayList<Comment>());
+            mComments = new MutableLiveData<Result<Comment>>(
+                    new Result<Comment>(0,0,0,new ArrayList<Comment>())
+            );
         }
         if(mRetroFitService==null)
             buildRetrofitInstance();
@@ -150,9 +152,17 @@ public class MovieRepository {
             @Override
             public void onResponse(Call<Result<Comment>> call, Response<Result<Comment>> response) {
                 if(response.isSuccessful()) {
-                    List<Comment> previousComments = mComments.getValue();
+                    /*
+                        Just convert Response<Result<Comment>> to Response<Comment>
+                        List<Comment> previousComments = mComments.getValue().body();
+                        previousComments.addAll(response.body().getResults());
+                        mComments.postValue(previousComments);
+                    */
+
+                    List<Comment> previousComments = mComments.getValue().getResults();
                     previousComments.addAll(response.body().getResults());
-                    mComments.postValue(previousComments);
+                    mComments.postValue(response.body());
+
 
                 }
             }

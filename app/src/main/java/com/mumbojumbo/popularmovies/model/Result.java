@@ -9,6 +9,7 @@ public class Result<T> {
     int mPage;
 
     int total_results;
+
     int total_pages;
 
     List<T> results;

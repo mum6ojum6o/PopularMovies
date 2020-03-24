@@ -22,6 +22,7 @@ import com.mumbojumbo.popularmovies.adapters.VideoAdapter;
 import com.mumbojumbo.popularmovies.model.Comment;
 import com.mumbojumbo.popularmovies.model.Movie;
 //import com.mumbojumbo.popularmovies.room.entities.Movie;
+import com.mumbojumbo.popularmovies.model.Result;
 import com.mumbojumbo.popularmovies.model.Videos;
 import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 import com.mumbojumbo.popularmovies.viewmodels.FavoriteMoviesViewModel;
@@ -46,7 +47,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
      RecyclerView mMovieMiscDetails;
      List<Comment> mReviewsList;
      List<Videos> mVideoList;
-
+     boolean mCommentsVisible,mVideosVisible;
      MovieReviewsAdapter mMovieReviewAdapter;
      FavoriteMoviesViewModel favoriteMoviesViewModel;
      VideoAdapter mVideoAdapter;
@@ -67,7 +68,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         mVideos = (TextView)findViewById(R.id.tv_trailers);
         mMovieMiscDetails = (RecyclerView)findViewById(R.id.rv_movie_misc);
         mMovieMiscDetails.setVisibility(View.INVISIBLE);
-        mMovieReviewAdapter = new MovieReviewsAdapter(new ArrayList<Comment>(),this);
+        mMovieReviewAdapter = new MovieReviewsAdapter(new ArrayList<Comment>(),this,1);
         mVideoAdapter = new VideoAdapter(new ArrayList<Videos>(), this);
         Intent activityLauncherIntent = this.getIntent();
         if(activityLauncherIntent!=null){
@@ -145,8 +146,11 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void showVideos(){
-        if(mMovieMiscDetails.getVisibility()==View.INVISIBLE ) {
+        if(!mVideosVisible ) {
 
+            mVideosVisible = true;
+            mCommentsVisible = false;
+            mVideos.setBackgroundColor(getResources().getColor(R.color.colorAccent));
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                     RecyclerView.HORIZONTAL,false);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
@@ -155,13 +159,19 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             mVideoAdapter.notifyDataSetChanged();
             mMovieMiscDetails.setVisibility(View.VISIBLE);
         }else{
+            mVideosVisible = false;
+            mVideos.setBackgroundColor(getResources().getColor(R.color.colorBlack));
             mMovieMiscDetails.setVisibility(View.INVISIBLE);
         }
+        mReviews.setBackgroundColor(getResources().getColor(R.color.colorBlack));
     }
 
 
     public void showReviews(){
-        if(mMovieMiscDetails.getVisibility()==View.INVISIBLE) {
+        if(!mCommentsVisible) {
+            mCommentsVisible = true;
+            mVideosVisible = false;
+            mReviews.setBackgroundColor(getResources().getColor(R.color.colorAccent));
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                     RecyclerView.HORIZONTAL,false);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
@@ -170,12 +180,13 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             mMovieReviewAdapter.notifyDataSetChanged();
             mMovieMiscDetails.setVisibility(View.VISIBLE);
         }else{
-
+            mCommentsVisible = false;
+            mReviews.setBackgroundColor(getResources().getColor(R.color.colorBlack));
             mMovieReviewAdapter.setReview(new ArrayList<>());
             mMovieReviewAdapter.notifyDataSetChanged();
             mMovieMiscDetails.setVisibility(View.INVISIBLE);
-
         }
+        mVideos.setBackgroundColor(getResources().getColor(R.color.colorBlack));
     }
     public void setupViewModel(){
 
@@ -199,9 +210,9 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
     private void setupMovieCommentsViewModel(){
         MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getMovieId()).create(MovieCommentsViewModel.class);
         mCurrentpage = 1;
-        viewModel.getComments().observe(this, new Observer<List<Comment>>() {
+        viewModel.getComments().observe(this, new Observer<Result<Comment>>() {
             @Override
-            public void onChanged(List<Comment> comments) {
+            public void onChanged(Result<Comment> comments) {
                 updateViewsAssociatedWithReviews(comments);
             }
         });
@@ -221,16 +232,19 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    private void updateViewsAssociatedWithReviews(List<Comment> comments){
+    private void updateViewsAssociatedWithReviews(Result<Comment> comments){
         StringBuilder sb = new StringBuilder();
-        sb.append("Reviews(");sb.append(comments.size());sb.append(")");
+        sb.append("Reviews(");sb.append(comments.getTotal_results());sb.append(")");
         mReviews.setText(sb.toString());
-        mMovieReviewAdapter.setReview(comments);
-        mReviewsList = comments;
-        /*
-        Ugly Code:
-        this is needed because, if the recyclerview is being scrolled or is calculating while a
-        notifyDataSetChanged call, an exception is thrown*/
+        mMovieReviewAdapter.setReview(comments.getResults());
+        mReviewsList = comments.getResults();
+        mMovieReviewAdapter.setmTotalPages(comments.getTotal_pages());
+
+        /**************************************************************************************
+            Ugly Code:
+            this is needed because, if the recyclerview is being scrolled or is calculating while a
+            notifyDataSetChanged call, an exception is thrown
+        ***************************************************************************************/
         mMovieMiscDetails.post(new Runnable() {
             @Override
             public void run() {
@@ -240,14 +254,13 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-
     @Override
     public void getMoreReviews() {
         MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getMovieId())
                 .create(MovieCommentsViewModel.class);
-        viewModel.getCommentsByPage(mMovie.getMovieId(),++mCurrentpage).observe(this, new Observer<List<Comment>>() {
+        viewModel.getCommentsByPage(mMovie.getMovieId(),++mCurrentpage).observe(this, new Observer<Result<Comment>>() {
             @Override
-            public void onChanged(List<Comment> comments) {
+            public void onChanged(Result<Comment> comments) {
 
                 updateViewsAssociatedWithReviews(comments);
             }

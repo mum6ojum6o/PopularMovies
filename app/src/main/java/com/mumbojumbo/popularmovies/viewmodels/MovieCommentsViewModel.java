@@ -10,13 +10,14 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.mumbojumbo.popularmovies.model.Comment;
+import com.mumbojumbo.popularmovies.model.Result;
 import com.mumbojumbo.popularmovies.repositories.MovieRepository;
 
 import java.util.List;
 
 public class MovieCommentsViewModel extends AndroidViewModel {
     private static final String TAG = "CommentsViewModel";
-    MutableLiveData<List<Comment>> mComments;
+    MutableLiveData<Result<Comment>> mComments;
     MovieRepository movieRepo;
     public MovieCommentsViewModel(@NonNull Application application, int movieId) {
         super(application);
@@ -25,10 +26,10 @@ public class MovieCommentsViewModel extends AndroidViewModel {
         mComments = movieRepo.getComments(movieId,1);
     }
 
-    public LiveData<List<Comment>> getComments(){
+    public LiveData<Result<Comment>> getComments(){
         return mComments;
     }
-    public LiveData<List<Comment>> getCommentsByPage(int movieId,int page){
+    public LiveData<Result<Comment>> getCommentsByPage(int movieId, int page){
         return movieRepo.getComments(movieId,page);
     }
 }

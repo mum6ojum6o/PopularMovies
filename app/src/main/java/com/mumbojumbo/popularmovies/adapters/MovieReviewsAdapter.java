@@ -14,9 +14,12 @@ import java.util.List;
 public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsViewHolder> {
     List<Comment> mReviews;
     IMovieReviewsListener movieReviewsListener;
-    public MovieReviewsAdapter(List<Comment> mReviews,IMovieReviewsListener movieReviewsListener) {
+    int mTotalPages;
+    int mCurrentPage;
+    public MovieReviewsAdapter(List<Comment> mReviews,IMovieReviewsListener movieReviewsListener,int currentPage) {
         this.mReviews = mReviews;
         this.movieReviewsListener = movieReviewsListener;
+        this.mCurrentPage = currentPage;
     }
 
     @NonNull
@@ -30,7 +33,8 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsViewHo
     @Override
     public void onBindViewHolder(@NonNull MovieReviewsViewHolder holder, int position) {
         holder.populateUI(mReviews.get(position).getmAuthor(),mReviews.get(position).getmContent());
-        if(position == mReviews.size()-2){
+        if(position == mReviews.size()-1 && mCurrentPage<mTotalPages){
+            mCurrentPage++;
             movieReviewsListener.getMoreReviews();
         }
     }
@@ -46,5 +50,21 @@ public class MovieReviewsAdapter extends RecyclerView.Adapter<MovieReviewsViewHo
 
     public void setReview(List<Comment> comments){
         this.mReviews = comments;
+    }
+
+    public int getmTotalPages() {
+        return mTotalPages;
+    }
+
+    public void setmTotalPages(int mTotalPages) {
+        this.mTotalPages = mTotalPages;
+    }
+
+    public int getmCurrentPage() {
+        return mCurrentPage;
+    }
+
+    public void setmCurrentPage(int mCurrentPage) {
+        this.mCurrentPage = mCurrentPage;
     }
 }

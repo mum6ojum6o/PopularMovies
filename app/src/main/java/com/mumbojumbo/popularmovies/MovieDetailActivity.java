@@ -1,5 +1,6 @@
 package com.mumbojumbo.popularmovies;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -13,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -28,7 +28,6 @@ import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
 import com.mumbojumbo.popularmovies.viewmodels.FavoriteMoviesViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.MovieCommentsViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.MovieReviewsViewModelFactory;
-import com.mumbojumbo.popularmovies.viewmodels.MovieViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.VideosViewModel;
 import com.mumbojumbo.popularmovies.viewmodels.VideosViewModelFactory;
 
@@ -37,6 +36,10 @@ import java.util.List;
 
 public class MovieDetailActivity extends AppCompatActivity implements View.OnClickListener, MovieReviewsAdapter.IMovieReviewsListener, VideoAdapter.IMovieVideoClickListener{
     private static final String TAG = "MovieDetailActivity";
+    private static final String VIDEOS_OR_COMMENTS = "VIDEOS_OR_TRAILERS";
+    private static final int VIDEOS = 1;
+    private static final int COMMENTS = 2;
+
     ImageView mPoster;
      TextView mMovieTitle;
      TextView mSynopsis;
@@ -80,12 +83,16 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
                 }
             }
         }
+
+
         mFavorite.setOnClickListener(this);
         mReviews.setOnClickListener(this);
         mVideos.setOnClickListener(this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         mMovieMiscDetails.setLayoutManager(linearLayoutManager);
-        //
+        if(savedInstanceState != null){
+            restoreMiscViews(savedInstanceState);
+        }
 
 
     }
@@ -154,16 +161,18 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                     RecyclerView.HORIZONTAL,false);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
-            mMovieMiscDetails.setAdapter(mVideoAdapter);
             mVideoAdapter.setmVideos(mVideoList);
-            mVideoAdapter.notifyDataSetChanged();
+            mMovieMiscDetails.setAdapter(mVideoAdapter);
+
             mMovieMiscDetails.setVisibility(View.VISIBLE);
         }else{
             mVideosVisible = false;
+            mMovieReviewAdapter.setReview(new ArrayList<>());
             mVideos.setBackgroundColor(getResources().getColor(R.color.colorBlack));
             mMovieMiscDetails.setVisibility(View.INVISIBLE);
         }
         mReviews.setBackgroundColor(getResources().getColor(R.color.colorBlack));
+        mVideoAdapter.notifyDataSetChanged();
     }
 
 
@@ -175,9 +184,8 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
                     RecyclerView.HORIZONTAL,false);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
-            mMovieMiscDetails.setAdapter(mMovieReviewAdapter);
             mMovieReviewAdapter.setReview(mReviewsList);
-            mMovieReviewAdapter.notifyDataSetChanged();
+            mMovieMiscDetails.setAdapter(mMovieReviewAdapter);
             mMovieMiscDetails.setVisibility(View.VISIBLE);
         }else{
             mCommentsVisible = false;
@@ -187,6 +195,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             mMovieMiscDetails.setVisibility(View.INVISIBLE);
         }
         mVideos.setBackgroundColor(getResources().getColor(R.color.colorBlack));
+        mMovieReviewAdapter.notifyDataSetChanged();
     }
     public void setupViewModel(){
 
@@ -199,13 +208,24 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
     private void setupVideoViewModel(){
         VideosViewModel videoViewModel = new VideosViewModelFactory(this.getApplication(),mMovie.getMovieId()).create(VideosViewModel.class);
         videoViewModel.getVideos().observe(this,(List<Videos> videos)->{
-            mVideoAdapter.setmVideos(videos);
-            mVideos.setText("Trailers ("+videos.size()+")");
             mVideoList = videos;
-            mMovieMiscDetails.setAdapter(mVideoAdapter);
-            mVideoAdapter.notifyDataSetChanged();
+            updateViewsRelatedToVideos();
         });
     }
+
+    private void updateViewsRelatedToVideos(){
+        mVideos.setText("Trailers (" + (mVideoList != null ? mVideoList.size() : 0) + ")");
+        if(mVideosVisible) {
+            Log.i(TAG, "updateViewsRelatedToVideos");
+            mVideoAdapter.setmVideos(mVideoList);
+
+            mMovieMiscDetails.setAdapter(mVideoAdapter);
+            mVideoAdapter.notifyDataSetChanged();
+            if (mVideosVisible)
+                mVideos.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+        }
+    }
+
 
     private void setupMovieCommentsViewModel(){
         MovieCommentsViewModel viewModel = new MovieReviewsViewModelFactory(this.getApplication(),mMovie.getMovieId()).create(MovieCommentsViewModel.class);
@@ -213,7 +233,8 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         viewModel.getComments().observe(this, new Observer<Result<Comment>>() {
             @Override
             public void onChanged(Result<Comment> comments) {
-                updateViewsAssociatedWithReviews(comments);
+                mReviewsList = comments.getResults();
+                updateViewsAssociatedWithReviews();
             }
         });
     }
@@ -232,26 +253,33 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         });
     }
 
-    private void updateViewsAssociatedWithReviews(Result<Comment> comments){
+    private void updateViewsAssociatedWithReviews(){
         StringBuilder sb = new StringBuilder();
-        sb.append("Reviews(");sb.append(comments.getTotal_results());sb.append(")");
+        sb.append("Reviews(");
+        sb.append(mReviewsList != null ? mReviewsList.size() : 0);
+        sb.append(")");
         mReviews.setText(sb.toString());
-        mMovieReviewAdapter.setReview(comments.getResults());
-        mReviewsList = comments.getResults();
-        mMovieReviewAdapter.setmTotalPages(comments.getTotal_pages());
+        if(mCommentsVisible) {
+            Log.i(TAG, "updateViewsAssociatedWithReviews");
 
-        /**************************************************************************************
-            Ugly Code:
-            this is needed because, if the recyclerview is being scrolled or is calculating while a
-            notifyDataSetChanged call, an exception is thrown
-        ***************************************************************************************/
-        mMovieMiscDetails.post(new Runnable() {
-            @Override
-            public void run() {
-                mMovieReviewAdapter.notifyDataSetChanged();
-            }
-        });
 
+            mMovieReviewAdapter.setReview(mReviewsList);
+            mMovieMiscDetails.setAdapter(mMovieReviewAdapter);
+            if (mCommentsVisible)
+                mReviews.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
+            /**************************************************************************************
+             Ugly Code:
+             this is needed because, if the recyclerview is being scrolled or is calculating while a
+             notifyDataSetChanged call, an exception is thrown
+             ***************************************************************************************/
+            mMovieMiscDetails.post(new Runnable() {
+                @Override
+                public void run() {
+                    mMovieReviewAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     @Override
@@ -261,8 +289,9 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         viewModel.getCommentsByPage(mMovie.getMovieId(),++mCurrentpage).observe(this, new Observer<Result<Comment>>() {
             @Override
             public void onChanged(Result<Comment> comments) {
-
-                updateViewsAssociatedWithReviews(comments);
+                mReviewsList = comments.getResults();
+                mMovieReviewAdapter.setmTotalPages(comments.getTotal_pages());
+                updateViewsAssociatedWithReviews();
             }
         });
     }
@@ -283,5 +312,32 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
 
     private boolean packageAvailable(Intent intent){
         return getPackageManager().resolveActivity(intent,0)!=null;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mVideosVisible){
+            outState.putInt(VIDEOS_OR_COMMENTS,VIDEOS);
+        }else if(mCommentsVisible){
+            outState.putInt(VIDEOS_OR_COMMENTS,COMMENTS);
+        }else{
+            outState.putInt(VIDEOS_OR_COMMENTS,-1);
+        }
+    }
+
+    private void restoreMiscViews(Bundle savedState){
+        int viewType = savedState.getInt(VIDEOS_OR_COMMENTS,-1);
+        if(viewType == VIDEOS){
+            showVideos();
+        }else if(viewType == COMMENTS){
+            showReviews();
+        }
     }
 }

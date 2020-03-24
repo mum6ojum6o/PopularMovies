@@ -1,5 +1,8 @@
 package com.mumbojumbo.popularmovies.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Videos {
@@ -62,4 +65,5 @@ public class Videos {
     public void setmType(String mType) {
         this.mType = mType;
     }
+
 }

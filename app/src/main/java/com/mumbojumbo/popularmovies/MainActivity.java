@@ -18,13 +18,16 @@ import com.mumbojumbo.popularmovies.viewmodels.TopRatedMoviesViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity
         implements MoviePostersAdapter.IGetMoreMovies{
     private int mSortOption = 1; //1 for popular movies and 0 for top rated movies
     private static final String RESTORE_SORT_OPTIONS_KEY = "SORT_OPTION";
 
     private static final String TAG="MainActivity";
-    /*@BindView(R.id.rv_movie_posters)*/ RecyclerView mRecyclerView;
+    @BindView(R.id.rv_movie_posters) RecyclerView mRecyclerView;
     private static final String url="";
     private List<Movie> mMovies;
     private MoviePostersAdapter mMoviePostersAdapter;
@@ -36,7 +39,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Log.d(TAG,"in onCreate()");
         setContentView(R.layout.activity_main);
-        mRecyclerView = findViewById(R.id.rv_movie_posters);
+        ButterKnife.bind(this);
         this.mMovies = new ArrayList<Movie>();
         GridLayoutManager manager = new GridLayoutManager(MainActivity.this,4);
         mMoviePostersAdapter = new MoviePostersAdapter(mMovies,1,this);

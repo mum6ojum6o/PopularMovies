@@ -6,7 +6,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.mumbojumbo.popularmovies.adapters.MovieReviewsAdapter;
@@ -34,42 +32,47 @@ import com.mumbojumbo.popularmovies.viewmodels.VideosViewModelFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MovieDetailActivity extends AppCompatActivity implements View.OnClickListener, MovieReviewsAdapter.IMovieReviewsListener, VideoAdapter.IMovieVideoClickListener{
     private static final String TAG = "MovieDetailActivity";
     private static final String VIDEOS_OR_COMMENTS = "VIDEOS_OR_TRAILERS";
     private static final int VIDEOS = 1;
     private static final int COMMENTS = 2;
 
-    ImageView mPoster;
-     TextView mMovieTitle;
-     TextView mSynopsis;
-     TextView mRating;
-     TextView mReleaseDate;
-     TextView mReviews;
-     TextView mVideos;
-     RecyclerView mMovieMiscDetails;
+    @BindView(R.id.iv_movie_poster_detail)ImageView mPoster;
+    @BindView(R.id.tv_movie_title)TextView mMovieTitle;
+    @BindView(R.id.tv_synopsis)TextView mSynopsis;
+    @BindView(R.id.tv_user_rating) TextView mRating;
+     @BindView(R.id.tv_release_date) TextView mReleaseDate;
+     @BindView(R.id.tv_reviews)TextView mReviews;
+     @BindView(R.id.tv_trailers)TextView mVideos;
+     @BindView(R.id.rv_movie_misc)RecyclerView mMovieMiscDetails;
+    @BindView(R.id.iv_favorite)ImageView mFavorite;
      List<Comment> mReviewsList;
      List<Videos> mVideoList;
      boolean mCommentsVisible,mVideosVisible;
      MovieReviewsAdapter mMovieReviewAdapter;
      FavoriteMoviesViewModel favoriteMoviesViewModel;
      VideoAdapter mVideoAdapter;
-   ImageView mFavorite;
+
     Movie mMovie;
     int mCurrentpage;
     @Override
     protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
-        mMovieTitle = (TextView)findViewById(R.id.tv_movie_title);
-        mSynopsis = (TextView)findViewById(R.id.tv_synopsis);
-        mRating = (TextView)findViewById(R.id.tv_user_rating);
-        mReleaseDate = (TextView)findViewById(R.id.tv_release_date);
-        mPoster = (ImageView)findViewById(R.id.iv_movie_poster_detail);
-        mFavorite = (ImageView)findViewById(R.id.iv_favorite);
-        mReviews = (TextView)findViewById(R.id.tv_reviews);
-        mVideos = (TextView)findViewById(R.id.tv_trailers);
-        mMovieMiscDetails = (RecyclerView)findViewById(R.id.rv_movie_misc);
+        ButterKnife.bind(this);
+        //mMovieTitle = (TextView)findViewById(R.id.tv_movie_title);
+        //mSynopsis = (TextView)findViewById(R.id.tv_synopsis);
+        //mRating = (TextView)findViewById(R.id.tv_user_rating);
+        //mReleaseDate = (TextView)findViewById(R.id.tv_release_date);
+        //mPoster = (ImageView)findViewById(R.id.iv_movie_poster_detail);
+        //mFavorite = (ImageView)findViewById(R.id.iv_favorite);
+        //mReviews = (TextView)findViewById(R.id.tv_reviews);
+        //mVideos = (TextView)findViewById(R.id.tv_trailers);
+        //mMovieMiscDetails = (RecyclerView)findViewById(R.id.rv_movie_misc);
         mMovieMiscDetails.setVisibility(View.INVISIBLE);
         mMovieReviewAdapter = new MovieReviewsAdapter(new ArrayList<Comment>(),this,1);
         mVideoAdapter = new VideoAdapter(new ArrayList<Videos>(), this);
@@ -113,9 +116,6 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
                     .error(R.mipmap.ic_image_placedholder)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(mPoster);
-            /*if(mMovie.isFavorite()){
-                mFavorite.setColorFilter(getResources().getColor(R.color.colorAccent));
-            }*/
             setupViewModel();
         }
     }

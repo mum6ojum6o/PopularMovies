@@ -93,6 +93,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         if(savedInstanceState != null){
             restoreMiscViews(savedInstanceState);
         }
+        mMovieMiscDetails.setHasFixedSize(false);
 
 
     }
@@ -158,8 +159,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             mVideosVisible = true;
             mCommentsVisible = false;
             mVideos.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
-                    RecyclerView.HORIZONTAL,false);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
             mVideoAdapter.setmVideos(mVideoList);
             mMovieMiscDetails.setAdapter(mVideoAdapter);
@@ -181,8 +181,7 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
             mCommentsVisible = true;
             mVideosVisible = false;
             mReviews.setBackgroundColor(getResources().getColor(R.color.colorAccent));
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,
-                    RecyclerView.HORIZONTAL,false);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
             mMovieMiscDetails.setLayoutManager(linearLayoutManager);
             mMovieReviewAdapter.setReview(mReviewsList);
             mMovieMiscDetails.setAdapter(mMovieReviewAdapter);

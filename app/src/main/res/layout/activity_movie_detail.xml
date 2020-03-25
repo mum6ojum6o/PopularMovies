@@ -16,7 +16,6 @@
             android:id="@+id/iv_movie_poster_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:scaleType="fitXY"
             app:layout_constrainedHeight="false"
             app:layout_constrainedWidth="false"

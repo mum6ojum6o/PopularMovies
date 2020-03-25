@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-        <item android:title="Sort By Ratings"
+        <item android:icon="@drawable/ic_favorite"
+            app:iconTint="@color/colorAccent"
+            android:title="@string/favorite"
+            android:id="@+id/toolbar_icon_favorite"
+            app:showAsAction="always"/>
+        <item android:title="@string/menu_sort_by_rating"
             android:orderInCategory="1"
-
             android:id="@+id/menu_item_ratings"/>
-        <item android:title="Sort By Popularity"
+        <item android:title="@string/menu_sort_by_popularity"
             android:orderInCategory="2"
             android:id="@+id/menu_item_popularity"/>
 

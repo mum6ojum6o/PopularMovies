@@ -1,45 +1,46 @@
 package com.mumbojumbo.popularmovies;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
 import com.mumbojumbo.popularmovies.adapters.MoviePostersAdapter;
 import com.mumbojumbo.popularmovies.model.Movie;
-import com.mumbojumbo.popularmovies.model.Result;
-import com.mumbojumbo.popularmovies.retrofit.MovieResultsFromNetwork;
-
+import com.mumbojumbo.popularmovies.viewmodels.MovieViewModel;
+import com.mumbojumbo.popularmovies.viewmodels.TopRatedMoviesViewModel;
 import java.util.ArrayList;
 import java.util.List;
-import retrofit2.*;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-        implements Callback<Result>,MoviePostersAdapter.IGetMoreMovies{
+        implements MoviePostersAdapter.IGetMoreMovies{
     private int mSortOption = 1; //1 for popular movies and 0 for top rated movies
     private static final String RESTORE_SORT_OPTIONS_KEY = "SORT_OPTION";
 
     private static final String TAG="MainActivity";
-    /*@BindView(R.id.rv_movie_posters)*/ RecyclerView mRecyclerView;
+    @BindView(R.id.rv_movie_posters) RecyclerView mRecyclerView;
     private static final String url="";
     private List<Movie> mMovies;
-    private Result mResult;
     private MoviePostersAdapter mMoviePostersAdapter;
-    private MovieResultsFromNetwork mMovieResultsFromNetwork;
+    private MovieViewModel mMovieViewModel;
+    private TopRatedMoviesViewModel mTopRatedMovieModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG,"in onCreate()");
         setContentView(R.layout.activity_main);
-        //ButterKnife.bind(this);
-        mRecyclerView = findViewById(R.id.rv_movie_posters);
+        ButterKnife.bind(this);
         this.mMovies = new ArrayList<Movie>();
-        this.mMovieResultsFromNetwork = new MovieResultsFromNetwork(this);
         GridLayoutManager manager = new GridLayoutManager(MainActivity.this,4);
         mMoviePostersAdapter = new MoviePostersAdapter(mMovies,1,this);
         mRecyclerView.setLayoutManager(manager);
@@ -48,34 +49,22 @@ public class MainActivity extends AppCompatActivity
         if(savedInstanceState!=null){
             this.mSortOption = savedInstanceState.getInt(RESTORE_SORT_OPTIONS_KEY,1);
         }
+        setupViewModel();
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        if(mSortOption ==1)
-            this.mMovieResultsFromNetwork.getPopularMovies(1);
-        else
-            this.mMovieResultsFromNetwork.getTopRatedMovies(1);
+
     }
 
-    @Override
-    public void onResponse(Call<Result> call, Response<Result> response) {
-        if(response.isSuccessful()) {
-            mResult = response.body();
-            mMovies.addAll(mResult.getResults());
-            mMoviePostersAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onFailure(Call<Result> call, Throwable t) {
-        Log.i(TAG,"Something went wrong!!");
-    }
 
     @Override
     public void getMoviesFromPage(int page) {
-        this.mMovieResultsFromNetwork.getPopularMovies(page);
+        if(this.mSortOption==1)
+            mMovieViewModel.pullFromNetwork(page);
+        else
+            mTopRatedMovieModel.getMoreTopRatedMovies(page);
     }
 
     @Override
@@ -93,16 +82,26 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_item_popularity:
                 if(this.mSortOption !=1) {
                     this.mSortOption =1;
-                    this.mMovies.clear();
-                    this.mMovieResultsFromNetwork.getPopularMovies(1);
-                }
+                    getSupportActionBar().setTitle(R.string.app_name);
+                    mMoviePostersAdapter.resetPages();
+                    setupViewModel();
+                    fetchResultsBasedOnPreferences();
+                 }
+
                 break;
             case R.id.menu_item_ratings:
                 if(this.mSortOption !=0) {
                     this.mSortOption = 0;
-                    this.mMovies.clear();
-                    this.mMovieResultsFromNetwork.getTopRatedMovies(1);
+                    getSupportActionBar().setTitle(R.string.top_rated);
+                    mMoviePostersAdapter.resetPages();
+                    setupViewModel();
+                    fetchResultsBasedOnPreferences();
+
                 }
+
+                break;
+            case R.id.toolbar_icon_favorite:
+                    startActivity(new Intent(MainActivity.this,FavoritesActivity.class));
                 break;
         }
         return true;
@@ -114,6 +113,45 @@ public class MainActivity extends AppCompatActivity
         outState.putInt(this.RESTORE_SORT_OPTIONS_KEY,this.mSortOption);
     }
 
+    private void setupViewModel(){
+        if(this.mSortOption==1) {
+            if(mMovieViewModel==null)
+                mMovieViewModel = new ViewModelProvider(this)
+                        .get(MovieViewModel.class);
+        }
+        else {
+            if(this.mTopRatedMovieModel==null) {
+                mTopRatedMovieModel = new ViewModelProvider(this)
+                        .get(TopRatedMoviesViewModel.class);
+            }
+        }
 
+        fetchResultsBasedOnPreferences();
+    }
+
+    private void fetchPopularMovies(){
+        mMovieViewModel.getPopularMovies().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(List<Movie> movies) {
+                Log.i(TAG,"OnChange:"+movies.size());
+                mMoviePostersAdapter.setMovies(movies);
+                mMoviePostersAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private void fetchTopRatedMovies(){
+        mTopRatedMovieModel.getTopRatedMovies().observe(this, (List<Movie> movie) -> {
+           mMoviePostersAdapter.setMovies(movie);
+           mMoviePostersAdapter.notifyDataSetChanged();
+        });
+    }
+    private void fetchResultsBasedOnPreferences(){
+        if(this.mSortOption==1){
+            fetchPopularMovies();
+        }else{
+            fetchTopRatedMovies();
+        }
+    }
 
 }

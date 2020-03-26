@@ -64,15 +64,6 @@ public class MovieDetailActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
-        //mMovieTitle = (TextView)findViewById(R.id.tv_movie_title);
-        //mSynopsis = (TextView)findViewById(R.id.tv_synopsis);
-        //mRating = (TextView)findViewById(R.id.tv_user_rating);
-        //mReleaseDate = (TextView)findViewById(R.id.tv_release_date);
-        //mPoster = (ImageView)findViewById(R.id.iv_movie_poster_detail);
-        //mFavorite = (ImageView)findViewById(R.id.iv_favorite);
-        //mReviews = (TextView)findViewById(R.id.tv_reviews);
-        //mVideos = (TextView)findViewById(R.id.tv_trailers);
-        //mMovieMiscDetails = (RecyclerView)findViewById(R.id.rv_movie_misc);
         mMovieMiscDetails.setVisibility(View.INVISIBLE);
         mMovieReviewAdapter = new MovieReviewsAdapter(new ArrayList<Comment>(),this,1);
         mVideoAdapter = new VideoAdapter(new ArrayList<Videos>(), this);
